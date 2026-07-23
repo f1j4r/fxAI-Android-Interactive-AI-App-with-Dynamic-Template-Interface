@@ -9,7 +9,6 @@
 - **In‑app memory** – save progress (topic + score) and recall it in future prompts.
 - **Full chat history** – every session is saved and can be restored later.
 - **Template manager** – add, edit, delete, and toggle templates with a simple UI.
-- **Dark/light theme** – system‑aware and persisting across pages.
 - **No external libraries** – built purely with Android SDK and Java.
 
 ## 🧱 Architecture
@@ -37,9 +36,9 @@
 | **AI Chat** | General‑purpose chat with HTML‑formatted responses. |
 | **Quiz**   | Multiple‑choice quiz with scoring and explanations. |
 | **Text Adventure** | Interactive story with choices and inventory. |
-| **Flashcards** | Flip‑card memorization with progress tracking. |
+| **Flashcards** | Flip‑card memorization with simple progress tracking. |
 
-You can add your own templates by placing an HTML file (with metadata comment) in `assets/templates/` and updating `metadata.json`.
+You can add your own templates by adding an HTML file (with metadata comment) via Settings > "Add New Template".
 
 ## 🔧 AI Providers
 
