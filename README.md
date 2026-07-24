@@ -45,7 +45,3 @@ You can add your own templates by adding an HTML file (with metadata comment) vi
 - **Groq** – fast inference with Llama, Mixtral, Gemma.
 - **Google Gemini** – multimodal models (Gemini 1.5/2.0).
 - **Custom** – any OpenAI‑compatible endpoint (enter URL + API key).
-
-## 📄 License
-
-MIT – feel free to use, modify, and distribute.
