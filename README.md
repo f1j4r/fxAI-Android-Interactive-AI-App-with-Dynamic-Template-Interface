@@ -1,4 +1,4 @@
-# FxAI – AI‑driven interactive content on Android
+# FxAI – AI‑driven interactive content on Android (Prototype)
 
 **FxAI** is a native Android application that uses AI to generate and update interactive HTML templates inside a WebView. It supports multiple AI providers (Groq, Google Gemini, or any OpenAI‑compatible API) and allows users to create, edit, and reuse custom templates.
 
