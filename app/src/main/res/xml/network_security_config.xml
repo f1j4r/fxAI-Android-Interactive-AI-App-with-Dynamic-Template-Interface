@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <domain-config cleartextTrafficPermitted="false">
+    <!-- Groq -->
+    <domain includeSubdomains="true">api.groq.com</domain>
+    <!-- Google Gemini -->
+    <domain includeSubdomains="true">generativelanguage.googleapis.com</domain>
+    <!-- OpenAI (for custom provider) -->
+    <domain includeSubdomains="true">api.openai.com</domain>
+    <!-- Anthropic (for custom provider) -->
+    <domain includeSubdomains="true">api.anthropic.com</domain>
+  </domain-config>
+</network-security-config>
+

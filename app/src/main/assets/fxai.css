@@ -1,0 +1,303 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   fxAI Universal Template Styles
+   Version 1.0
+   Place in assets/templates/fxai.css and include with:
+   <link rel="stylesheet" href="fxai.css">
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ─── Reset & Base ────────────────────────────────────────────────────── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+    background: #f5f7fa;
+    color: #333;
+}
+
+/* ─── Container ───────────────────────────────────────────────────────── */
+.fxai-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ─── Headers ─────────────────────────────────────────────────────────── */
+.fxai-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.fxai-header h1 {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+.fxai-header .subtitle {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+/* ─── Cards / Boxes ──────────────────────────────────────────────────── */
+.fxai-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.fxai-card-dark {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+    color: #f0f0f0;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────── */
+.fxai-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+.fxai-btn:hover {
+    transform: translateY(-2px);
+}
+.fxai-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.fxai-btn-primary {
+    background: #667eea;
+    color: white;
+}
+.fxai-btn-primary:hover {
+    background: #5a6fd6;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.fxai-btn-success {
+    background: #4caf50;
+    color: white;
+}
+.fxai-btn-success:hover {
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.fxai-btn-danger {
+    background: #f44336;
+    color: white;
+}
+.fxai-btn-danger:hover {
+    box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+}
+
+.fxai-btn-secondary {
+    background: rgba(255,255,255,0.9);
+    color: #333;
+}
+.fxai-btn-secondary:hover {
+    background: white;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────────────────── */
+.fxai-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    font-size: 16px;
+    transition: border-color 0.2s;
+    background: white;
+    color: #333;
+}
+.fxai-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+.fxai-input-dark {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #f0f0f0;
+}
+.fxai-input-dark::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+/* ─── Choices / Option Lists ────────────────────────────────────────── */
+.fxai-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.fxai-choice {
+    padding: 16px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    color: inherit;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.fxai-choice:hover {
+    background: rgba(255,255,255,0.25);
+}
+.fxai-choice.selected {
+    border-color: #667eea;
+    background: #e8eaff;
+}
+.fxai-choice.correct {
+    border-color: #4caf50;
+    background: #e8f5e9;
+}
+.fxai-choice.wrong {
+    border-color: #f44336;
+    background: #ffebee;
+}
+.fxai-choice.disabled {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* ─── Progress / Status ─────────────────────────────────────────────── */
+.fxai-progress {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 16px;
+    opacity: 0.7;
+}
+
+/* ─── Inventory / Tags ──────────────────────────────────────────────── */
+.fxai-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+.fxai-tag {
+    background: rgba(255,215,0,0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    border: 1px solid rgba(255,215,0,0.3);
+}
+
+/* ─── Utility Classes ───────────────────────────────────────────────── */
+.fxai-hidden {
+    display: none !important;
+}
+.fxai-text-center {
+    text-align: center;
+}
+.fxai-text-muted {
+    opacity: 0.6;
+}
+.fxai-mt-8 {
+    margin-top: 8px;
+}
+.fxai-mt-16 {
+    margin-top: 16px;
+}
+.fxai-mt-24 {
+    margin-top: 24px;
+}
+.fxai-mb-8 {
+    margin-bottom: 8px;
+}
+.fxai-mb-16 {
+    margin-bottom: 16px;
+}
+.fxai-flex {
+    display: flex;
+}
+.fxai-flex-col {
+    flex-direction: column;
+}
+.fxai-gap-8 {
+    gap: 8px;
+}
+.fxai-gap-12 {
+    gap: 12px;
+}
+
+/* ─── Error Box ────────────────────────────────────────────────────── */
+.fxai-error {
+    background: rgba(255,0,0,0.2);
+    padding: 16px;
+    border-radius: 8px;
+    color: #ff6b6b;
+    text-align: center;
+}
+
+/* ─── Loading Overlay (used by FXAI library) ───────────────────────── */
+#fxai-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    color: white;
+    font-family: sans-serif;
+}
+#fxai-loading-overlay .spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: fxai-spin 0.8s linear infinite;
+}
+#fxai-loading-overlay .loading-msg {
+    margin-top: 20px;
+    font-size: 18px;
+}
+@keyframes fxai-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ─── Dark Theme Support (optional) ────────────────────────────────── */
+body.fxai-dark {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #f0f0f0;
+}
+body.fxai-dark .fxai-card {
+    background: rgba(255,255,255,0.1);
+    color: #f0f0f0;
+}
+body.fxai-dark .fxai-input {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+    color: #f0f0f0;
+}
+body.fxai-dark .fxai-choice {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+}
+body.fxai-dark .fxai-choice:hover {
+    background: rgba(255,255,255,0.2);
+}

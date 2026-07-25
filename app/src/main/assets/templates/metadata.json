@@ -1,0 +1,30 @@
+[
+  {
+    "name": "AI Chat",
+    "description": "General-purpose AI chat with HTML formatting support. Content can contains HTML elements and will be rendered as HTML.",
+    "htmlFileName": "chat.html",
+    "jsonSchema": "{\"messages\": [{\"role\": \"string\", \"content\": \"string\"}]}",
+    "isDefault": true
+  },
+  {
+    "name": "Quiz",
+    "description": "General multiple choice quiz with scoring and explanations; supports content regeneration and extension",
+    "htmlFileName": "quiz.html",
+    "jsonSchema": "{\"topic\": \"string\", \"questions\": [{\"question\": \"string\", \"options\": [\"string\"], \"correct\": 0, \"explanation\": \"string (optional)\"}]}",
+    "isDefault": true
+  },
+  {
+    "name": "Text Adventure",
+    "description": "Interactive story with choices, inventory items, and location names. Each scene can (optional) include an item that can be added to inventory according to user choice.",
+    "htmlFileName": "adventure.html",
+    "jsonSchema": "{\"title\": \"string\", \"scenes\": [{\"text\": \"string\", \"location\": \"string\", \"choices\": [\"string\"]}], \"inventory\": [\"string\"]}",
+    "isDefault": true
+  },
+  {
+    "name": "Flashcards",
+    "description": "Flip cards for memorization with progress tracking; supports content regeneration and extension",
+    "htmlFileName": "flashcard.html",
+    "jsonSchema": "{\"topic\": \"string\", \"cards\": [{\"front\": \"string\", \"back\": \"string\"}]}",
+    "isDefault": true
+  }
+]

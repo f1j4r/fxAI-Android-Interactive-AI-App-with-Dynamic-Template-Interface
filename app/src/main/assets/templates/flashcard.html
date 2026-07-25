@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    "name": "Flashcards",
+    "description": "Flip cards for memorization with progress tracking; supports regeneration and extension",
+    "jsonSchema": {\"topic\": \"string\", \"cards\": [{\"front\": \"string\", \"back\": \"string\"}]}
+-->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Flashcards</title>
+    <!-- Universal CSS -->
+    <link rel="stylesheet" href="file:///android_asset/fxai.css" />
+    <!-- Template-specific overrides -->
+<style>
+        body {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Card flip styles (unique to flashcards) */
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 24px;
+        }
+        .card {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .card-front {
+            background: white;
+            color: #2c3e50;
+        }
+        .card-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        .card-content {
+            font-size: 22px;
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        .card-label {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            font-size: 12px;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Controls – use fxai-btn classes from fxai.css, but these are template-specific layout */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .controls .fxai-btn {
+            flex: 1;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .nav-buttons .fxai-btn-secondary {
+            flex: 1;
+        }
+
+        .stats {
+            text-align: center;
+            color: white;
+            margin-top: 24px;
+            font-size: 14px;
+        }
+        .stats span {
+            display: inline-block;
+            margin: 0 12px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .completion .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .completion .action-buttons .fxai-btn {
+            flex: 0 1 auto;
+            min-width: 120px;
+        }
+
+        /* Override loading overlay to match theme */
+        #fxai-loading-overlay {
+            background: rgba(0,0,0,0.7);
+        }
+</style>
+  </head>
+  <body>
+
+    <div class="fxai-container">
+      <div class="fxai-header">
+        <h1 id="flashcardTitle">Flashcards</h1>
+        <div class="subtitle" id="flashcardTopic">Loading…</div>
+      </div>
+
+      <div id="studyView">
+        <div class="fxai-progress" id="progressText">Card 1 of 10</div>
+        <div class="card-container">
+          <div class="card" id="flashcard" onclick="flipCard()">
+            <div class="card-face card-front">
+              <div class="card-label">Question</div>
+              <div class="card-content" id="cardFront">Loading…</div>
+            </div>
+            <div class="card-face card-back">
+              <div class="card-label">Answer</div>
+              <div class="card-content" id="cardBack">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="fxai-btn fxai-btn-danger" onclick="markCard(false)">❌ Don't Know</button>
+          <button class="fxai-btn fxai-btn-success" onclick="markCard(true)">✓ Know It</button>
+        </div>
+        <div class="nav-buttons">
+          <button class="fxai-btn fxai-btn-secondary" id="prevBtn" onclick="previousCard()" disabled>← Previous</button>
+          <button class="fxai-btn fxai-btn-secondary" id="nextBtn" onclick="nextCard()">Next →</button>
+        </div>
+        <div class="stats">
+          <span>✓ Known: <strong id="knownCount">0</strong></span>
+          <span>❌ Learning: <strong id="learningCount">0</strong></span>
+        </div>
+      </div>
+
+      <div id="completionView" class="fxai-hidden completion">
+        <h2>🎉 All Done!</h2>
+        <div class="final-stats">
+          <div>You knew <strong id="finalKnown">0</strong> out of <strong id="finalTotal">0</strong> cards</div>
+          <div id="finalPercentage" style="font-size: 32px; margin-top: 16px;"></div>
+        </div>
+        <div class="action-buttons">
+          <button class="fxai-btn fxai-btn-success" onclick="restartCards()">Study Again</button>
+          <button class="fxai-btn" onclick="regenerateCards()" style="background:#9b59b6; color:white;">🔄 Regenerate</button>
+          <button class="fxai-btn" onclick="extendCards()" style="background:#3498db; color:white;">➕ Extend</button>
+        </div>
+      </div>
+
+      <div id="errorView" class="fxai-error fxai-hidden"></div>
+    </div>
+
+    <!-- FXAI library -->
+    <script src="file:///android_asset/fxai.js"></script>
+
+<script>
+    // ─── Global state ──────────────────────────────────────────────
+    var _flashcardData = null;
+    var _currentIndex = 0;
+    var _knownCards = [];
+    var _learningCards = [];
+    var _cardStatus = [];
+    var _initialTopic = '';
+
+    // ─── window.render() ────────────────────────────────────────────
+    window.render = function() {
+        try {
+            var rawData = window.templateData;
+            if (!rawData || !rawData.cards) {
+                showError('Invalid flashcards data: missing "cards" array.');
+                return;
+            }
+
+            _flashcardData = FXAI.init(rawData);
+            var savedState = FXAI.getStateObj();
+
+            if (Object.keys(savedState).length > 0) {
+                _currentIndex = savedState.currentIndex || 0;
+                _knownCards = savedState.knownCards || [];
+                _learningCards = savedState.learningCards || [];
+                _cardStatus = savedState.cardStatus || _flashcardData.cards.map(function() { return null; });
+            } else {
+                _currentIndex = 0;
+                _knownCards = [];
+                _learningCards = [];
+                _cardStatus = _flashcardData.cards.map(function() { return null; });
+            }
+
+            if (!_initialTopic && _flashcardData.topic) {
+                _initialTopic = _flashcardData.topic;
+            }
+
+            document.getElementById('flashcardTitle').textContent = 'Flashcards';
+            document.getElementById('flashcardTopic').textContent = _flashcardData.topic || 'General';
+            showCard();
+            updateStats();
+
+            if (_knownCards.length + _learningCards.length >= _flashcardData.cards.length) {
+                showCompletion();
+            } else {
+                document.getElementById('studyView').classList.remove('fxai-hidden');
+                document.getElementById('completionView').classList.add('fxai-hidden');
+            }
+            document.getElementById('errorView').classList.add('fxai-hidden');
+
+            FXAI.persist();
+
+        } catch (e) {
+            showError('Render error: ' + e.message);
+            FXAI.log('Flashcard render error: ' + e.message);
+        }
+    };
+
+    // ─── window.getState() ──────────────────────────────────────────
+    window.getState = function() {
+        return {
+            currentIndex: _currentIndex,
+            knownCards: _knownCards,
+            learningCards: _learningCards,
+            cardStatus: _cardStatus
+        };
+    };
+
+    // ─── UI Functions ──────────────────────────────────────────────
+    function showCard() {
+        if (!_flashcardData || !_flashcardData.cards) return;
+        var total = _flashcardData.cards.length;
+        document.getElementById('progressText').textContent = 'Card ' + (_currentIndex + 1) + ' of ' + total;
+        var card = _flashcardData.cards[_currentIndex];
+        document.getElementById('cardFront').textContent = card.front;
+        document.getElementById('cardBack').textContent = card.back;
+        document.getElementById('flashcard').classList.remove('flipped');
+        document.getElementById('prevBtn').disabled = (_currentIndex === 0);
+        document.getElementById('nextBtn').disabled = (_currentIndex === total - 1);
+    }
+
+    function flipCard() {
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function markCard(known) {
+        _cardStatus[_currentIndex] = known;
+        if (known) {
+            if (_knownCards.indexOf(_currentIndex) === -1) _knownCards.push(_currentIndex);
+            var idx = _learningCards.indexOf(_currentIndex);
+            if (idx > -1) _learningCards.splice(idx, 1);
+        } else {
+            if (_learningCards.indexOf(_currentIndex) === -1) _learningCards.push(_currentIndex);
+            var idx = _knownCards.indexOf(_currentIndex);
+            if (idx > -1) _knownCards.splice(idx, 1);
+        }
+        updateStats();
+        FXAI.persist();
+
+        if (_currentIndex < _flashcardData.cards.length - 1) {
+            setTimeout(nextCard, 300);
+        } else {
+            checkCompletion();
+        }
+    }
+
+    function nextCard() {
+        if (_currentIndex < _flashcardData.cards.length - 1) {
+            _currentIndex++;
+            showCard();
+        } else {
+            checkCompletion();
+        }
+    }
+
+    function previousCard() {
+        if (_currentIndex > 0) {
+            _currentIndex--;
+            showCard();
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('knownCount').textContent = _knownCards.length;
+        document.getElementById('learningCount').textContent = _learningCards.length;
+    }
+
+    function checkCompletion() {
+        if (_knownCards.length + _learningCards.length >= _flashcardData.cards.length) {
+            showCompletion();
+        }
+    }
+
+    function showCompletion() {
+        document.getElementById('studyView').classList.add('fxai-hidden');
+        document.getElementById('completionView').classList.remove('fxai-hidden');
+        var total = _flashcardData.cards.length;
+        var known = _knownCards.length;
+        var percentage = Math.round((known / total) * 100);
+        document.getElementById('finalKnown').textContent = known;
+        document.getElementById('finalTotal').textContent = total;
+        document.getElementById('finalPercentage').textContent = percentage + '%';
+
+        if (typeof AndroidBridge !== 'undefined') {
+            FXAI.saveProgress(
+                _flashcardData.topic || 'Flashcards',
+                known,
+                'Knew ' + known + '/' + total + ' cards (' + percentage + '%)'
+            );
+        }
+    }
+
+    function restartCards() {
+        document.getElementById('completionView').classList.add('fxai-hidden');
+        document.getElementById('studyView').classList.remove('fxai-hidden');
+        _currentIndex = 0;
+        _knownCards = [];
+        _learningCards = [];
+        _cardStatus = _flashcardData.cards.map(function() { return null; });
+        showCard();
+        updateStats();
+        FXAI.persist();
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('errorView');
+        el.textContent = msg;
+        el.classList.remove('fxai-hidden');
+        document.getElementById('studyView').classList.add('fxai-hidden');
+        document.getElementById('completionView').classList.add('fxai-hidden');
+    }
+
+    // ─── AI Actions ──────────────────────────────────────────────────
+    function regenerateCards() {
+        if (typeof AndroidBridge === 'undefined') {
+            showError('Bridge not available.');
+            return;
+        }
+        var topic = _initialTopic || _flashcardData.topic || 'general';
+        FXAI.generateNext('Regenerate new flashcards on the topic: ' + topic);
+    }
+
+    function extendCards() {
+        if (typeof AndroidBridge === 'undefined') {
+            showError('Bridge not available.');
+            return;
+        }
+        var topic = _initialTopic || _flashcardData.topic || 'general';
+        FXAI.generateNext('Add 5 more flashcards on the topic: ' + topic);
+    }
+
+    // ─── Initialisation ──────────────────────────────────────────────
+    if (window.templateData) {
+        window.render();
+    }
+</script>
+  </body>
+</html>

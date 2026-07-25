@@ -1,0 +1,47 @@
+apply plugin: "com.android.application"
+
+android {
+	buildToolsVersion "34.0.0"
+	compileSdkVersion 34
+	
+	namespace "fx.fxAI"
+	defaultConfig {
+		applicationId "fx.fxAI"
+		minSdkVersion 26
+		targetSdkVersion 34
+		versionCode 4
+		versionName "1.4"
+	}
+	
+	buildTypes {
+        release {
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+        }
+    }
+	
+}
+
+dependencies {
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	//崩溃日志必要 ※非常重要 
+	//如果使用取消下面注释
+	//implementation 'com.android.support:support-core-utils:28.0.0'
+
+	
+	// 如果出现kotlin库的类冲突，取消下一行注释
+	// api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0"
+	
+	// 用于放置打包jar根目录classes{N}.dex文件
+	// 也支持资源文件
+	// 注意 gradle不支持打包classes{N}.dex
+	runtimeOnly fileTree(dir: 'runtime', include: ['*.jar'])
+	// 仅编译 与 gradle一致
+	compileOnly fileTree(dir: 'provider', include: ['.jar'])
+	
+}

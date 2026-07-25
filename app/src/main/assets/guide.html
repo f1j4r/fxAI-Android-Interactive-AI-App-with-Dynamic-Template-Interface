@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Template Guide</title>
+    <link rel="stylesheet" href="file:///android_asset/fxai.css">
+<style>
+        /* Keep the guide's own style – it doesn't use fxai.css classes */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 95vw;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .back-link { display: inline-block; margin-bottom: 16px; color: #667eea; text-decoration: none; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        h1 { font-size: 28px; color: #667eea; margin-bottom: 10px; }
+        h2 { font-size: 22px; margin-top: 30px; margin-bottom: 15px; color: #2c3e50; border-bottom: 2px solid #e0e0e0; padding-bottom: 6px; }
+        h3 { font-size: 18px; margin-top: 20px; margin-bottom: 10px; color: #34495e; }
+        p, li { margin-bottom: 12px; }
+        ul, ol { padding-left: 25px; margin-bottom: 20px; }
+        code {
+            background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 14px;
+            font-family: 'Courier New', monospace; color: #c7254e;
+        }
+        pre {
+            background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px;
+            overflow-x: auto; font-size: 14px; margin: 16px 0;
+        }
+        pre code { background: transparent; padding: 0; color: inherit; }
+        .note {
+            background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px;
+            border-radius: 6px; margin: 20px 0;
+        }
+        .step { background: #e8f0fe; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; }
+        .step strong { color: #667eea; }
+        hr { margin: 30px 0; border: none; border-top: 1px solid #e0e0e0; }
+        .badge {
+            display: inline-block; background: #667eea; color: white; padding: 2px 10px; border-radius: 20px; font-size: 13px; font-weight: 600;
+        }
+        .flow-diagram {
+            background: #f0f4ff; padding: 16px; border-radius: 8px; border-left: 4px solid #667eea; margin: 16px 0;
+            font-family: monospace; font-size: 14px;
+        }
+        .highlight {
+            background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-weight: 500;
+        }
+</style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="#" onclick="window.location.href = 'file:///android_asset/welcome.html'; return false;" class="back-link">◀ Back</a>
+      <h1>📘 Custom Template Guide</h1>
+      <p>Learn how to create interactive templates for fxAI using the universal <code>fxai.js</code> library and <code>fxai.css</code> stylesheet.</p>
+
+      <!-- ============================================================ -->
+      <h2>1. What Is a Template?</h2>
+      <p>A template is an HTML file that defines the UI and logic for a specific interactive experience – e.g., a quiz, flashcard deck, adventure, or language exercise. When you import a template, you provide three pieces of metadata:</p>
+      <ul>
+        <li><strong>Name</strong> – a unique identifier (e.g., "Language Quiz").</li>
+        <li><strong>Description</strong> – a short, clear explanation of what the template does.</li>
+        <li><strong>JSON Schema</strong> – the exact data structure the AI must generate.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <h2>2. The Description’s Dual Role</h2>
+      <p>The <strong>description</strong> serves <em>two</em> critical purposes during the initial request:</p>
+      <ol>
+        <li><strong>Template Selection</strong> – it helps the AI understand the purpose of each template so it can choose the right one based on the user's prompt.</li>
+        <li><strong>Content Generation</strong> – it guides the AI on <em>what kind of content</em> to produce when filling the JSON schema. For example, if the description says <em>"German B1 grammar quiz with translations"</em>, the AI will generate German grammar questions with English translations.</li>
+      </ol>
+
+      <div class="flow-diagram">
+        <strong>📌 Prompt Flow – Initial Request (Selection + Generation):</strong><br>
+        System prompt includes for <strong>each active template</strong>:<br>
+        &nbsp;&nbsp;• Name: "Language Quiz"<br>
+        &nbsp;&nbsp;• Description: "Interactive language quiz with clickable sentence for translation..."<br>
+        &nbsp;&nbsp;• Schema: {"topic": "string", "questions": [...]}<br><br>
+        <span class="highlight">AI uses the description</span> to:<br>
+        &nbsp;&nbsp;1. Decide which template matches the user's request.<br>
+        &nbsp;&nbsp;2. Generate the actual content (topic, questions, translations, etc.) that fits the schema.<br><br>
+        <strong>Continuation (Regenerate/Extend):</strong><br>
+        System prompt includes <strong>description</strong>, <strong>schema</strong> and <strong>current data</strong>.
+      </div>
+
+      <!-- ============================================================ -->
+      <h2>3. Metadata Fields Explained</h2>
+      <h3>Template Name</h3>
+      <ul>
+        <li>Must be <strong>unique</strong> among active templates.</li>
+        <li>The AI will output this exact name in its response.</li>
+        <li>Case‑insensitive fallback is available, but <strong>exact match is recommended</strong>.</li>
+      </ul>
+
+      <h3>Template Description</h3>
+      <ul>
+        <li>A short (1‑2 sentences) description of what the template does.</li>
+        <li><strong>Used by the AI</strong> during the <strong>initial selection</strong> for two purposes:
+          <ul>
+            <li>To understand the template's purpose and decide when to select it.</li>
+            <li>To guide the <strong>content generation</strong> – the AI uses the description to know what topics, difficulty, language, or style to use when filling the schema.</li>
+          </ul>
+        </li>
+        <li>Example: <em>"Generate a 5‑question German B1 grammar quiz with translations and grammar explanations."</em></li>
+        <li><strong>Best practice:</strong> Be specific about the content type, topic, difficulty, and any special features – this helps the AI generate <em>relevant, high‑quality</em> data.</li>
+      </ul>
+
+      <h3>JSON Schema</h3>
+      <ul>
+        <li>A JSON object that defines the <strong>structure</strong> of the <code>data</code> object the AI must generate.</li>
+        <li>Must match exactly what your template expects in <code>window.templateData</code>.</li>
+        <li>Example: <code>{"topic": "string", "questions": [{"question": "string", "options": ["string"], "correct": 0}]}</code></li>
+        <li>The AI will always generate data that conforms to this schema – both in initial generation and in continuations. The <strong>description</strong> influences the <em>actual values</em> placed into these fields.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <h2>4. Universal Library (<code>fxai.js</code>)</h2>
+      <p>The shared library handles all the heavy lifting:</p>
+      <ul>
+        <li><strong>State extraction</strong> – <code>FXAI.init(rawData)</code> separates <code>_state</code> from the data.</li>
+        <li><strong>Persistence</strong> – <code>FXAI.persist()</code> saves the current state back to the app.</li>
+        <li><strong>Loading overlay</strong> – <code>FXAI.showLoading(msg)</code> and <code>FXAI.hideLoading()</code>.</li>
+        <li><strong>AI continuation</strong> – <code>FXAI.generateNext(prompt)</code> automatically shows the overlay and calls the bridge.</li>
+        <li><strong>Memory &amp; logging</strong> – <code>FXAI.saveProgress()</code>, <code>FXAI.getMemory()</code>, <code>FXAI.log()</code>, <code>FXAI.showToast()</code>.</li>
+        <li><strong>Debug panel</strong> – <code>FXAI.showDebug()</code> opens a floating panel with logs and a JS executor (see section 8).</li>
+      </ul>
+      <p>Include it in your template with <code>&lt;script src="fxai.js"&gt;&lt;/script&gt;</code>.</p>
+
+      <!-- ============================================================ -->
+      <h2>5. Universal CSS (<code>fxai.css</code>)</h2>
+      <p>A shared stylesheet provides a consistent look and common components:</p>
+      <ul>
+        <li>Layout: <code>.fxai-container</code>, <code>.fxai-header</code>, <code>.fxai-card</code></li>
+        <li>Buttons: <code>.fxai-btn</code>, <code>.fxai-btn-primary</code>, <code>.fxai-btn-success</code>, <code>.fxai-btn-danger</code></li>
+        <li>Inputs: <code>.fxai-input</code></li>
+        <li>Choices: <code>.fxai-choice</code></li>
+        <li>Utilities: <code>.fxai-hidden</code>, <code>.fxai-error</code>, <code>.fxai-text-center</code></li>
+        <li>Loading overlay (used by <code>fxai.js</code>)</li>
+      </ul>
+      <p>Include it with <code>&lt;link rel="stylesheet" href="fxai.css"&gt;</code>. You only need to add template‑specific overrides.</p>
+
+      <!-- ============================================================ -->
+      <h2>6. Required JavaScript Functions</h2>
+      <p>Every template <strong>must</strong> define these two global functions:</p>
+      <ul>
+        <li><code>window.render()</code> – called when new data is injected. Use <code>FXAI.init()</code> to get clean data and restore state, then update the UI and call <code>FXAI.persist()</code>.</li>
+        <li><code>window.getState()</code> – called by the app to persist runtime state (e.g., current question index, score). Must return a plain object.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <h2>7. Data Lifecycle</h2>
+      <ul>
+        <li><strong>New session</strong> – the AI generates a full data object. The app injects it as <code>window.templateData</code> and calls <code>render()</code>. Your template uses <code>FXAI.init()</code> to extract the data and restore any saved state.</li>
+        <li><strong>Continuation</strong> – your template calls <code>FXAI.generateNext(userPrompt)</code>. The AI returns an updated data object (same schema). The app injects the new data and calls <code>render()</code> again.</li>
+        <li><strong>State persistence</strong> – after any UI change, call <code>FXAI.persist()</code> to save the current state. The app will store it in history.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <h2>8. Debugging Tools in <code>fxai.js</code></h2>
+      <p>The library includes a powerful debug panel:</p>
+      <ul>
+        <li><strong><code>FXAI.showDebug()</code></strong> – opens a floating panel with a scrollable log area and a JavaScript executor.</li>
+        <li><strong><code>FXAI.log(message)</code></strong> – writes a message to the panel, browser console, and Android logcat.</li>
+        <li><strong><code>FXAI.evalJS(code)</code></strong> – executes a JavaScript expression and logs the result (you can also use the panel's input field).</li>
+        <li><strong><code>FXAI.debugData(showAlert)</code></strong> – prints the current <code>window.templateData</code> to the panel and console.</li>
+      </ul>
+      <p>To open the debug panel, run <code>FXAI.showDebug()</code> in the browser console (via Chrome DevTools). Use it to inspect the AI's response and test fixes interactively.</p>
+
+      <!-- ============================================================ -->
+      <h2>9. Example: Language Quiz Template</h2>
+      <p>Here's a complete template with clickable sentence translation overlay, multiple‑choice answers, and grammar explanations.</p>
+      <p><strong>Metadata:</strong></p>
+      <ul>
+        <li><strong>Name:</strong> <code>Language Quiz</code></li>
+        <li><strong>Description:</strong> <em>"Generate a 5‑question German B1 grammar quiz. Each question must include a sentence with a blank, four options, the correct answer index, and a grammar explanation."</em></li>
+        <li><strong>JSON Schema:</strong> <code>{"topic": "string", "questions": [{"sentence": "string", "translation": "string", "question": "string", "options": ["string"], "correct_index": 0, "grammar_explanation": "string"}]}</code></li>
+      </ul>
+      <div class="note">
+        <strong>💡 Why this description works:</strong><br>
+        • <em>"5‑question"</em> – tells the AI how many items to generate.<br>
+        • <em>"German B1 grammar"</em> – specifies the language and level.<br>
+        • <em>"sentence with a blank"</em> – describes the question format.<br>
+        • <em>"translation"</em> – guides the AI to include translations.<br>
+        • All these details help the AI generate <em>relevant, high‑quality content</em> that matches your template's design.
+      </div>
+
+      <!-- ============================================================ -->
+      <h2>10. Adding the Template in Settings</h2>
+      <ol>
+        <li>Place your HTML file in the internal storage (or assets folder).</li>
+        <li>Open the app → Settings → Templates → Add Template.</li>
+        <li>Fill in the <strong>Name</strong>, <strong>Description</strong> (be specific – it influences content generation), and <strong>JSON Schema</strong> (as a single‑line string).</li>
+        <li>Select your HTML file from storage.</li>
+        <li>Save – the template is now available for selection (and the AI can choose it and generate content for it).</li>
+      </ol>
+
+      <!-- ============================================================ -->
+      <h2>11. Continuation with <code>FXAI.generateNext()</code></h2>
+      <ul>
+        <li>Call <code>FXAI.generateNext(userPrompt)</code> from your template (e.g., on button click).</li>
+        <li>The library shows a loading overlay and sends the prompt to the AI.</li>
+        <li>The AI returns a <strong>complete updated data object</strong> that matches your schema.</li>
+        <li>The app injects the new data and calls <code>window.render()</code>.</li>
+        <li>Your template should <strong>replace</strong> the old data with the new one (or merge if needed).</li>
+        <li>Preserve client‑side state (e.g., current index, score) in <code>_state</code> and restore it in <code>render()</code>.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <h2>12. Testing &amp; Debugging Workflow</h2>
+      <ul>
+        <li>Use <code>FXAI.log(message)</code> – logs to the debug panel, browser console, and Android Logcat.</li>
+        <li>Enable Chrome remote debugging (<code>chrome://inspect</code>) to view the WebView console.</li>
+        <li>Open the debug panel with <code>FXAI.showDebug()</code> to inspect the raw AI response and test JavaScript expressions.</li>
+        <li>If your template fails, an error dialog will appear. Use the debug panel to see the exact error and data.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <h2>13. Best Practices</h2>
+      <ul>
+        <li><strong>Write descriptive, specific descriptions</strong> – they guide both template selection <em>and</em> content generation. Include details like topic, difficulty, number of items, and format.</li>
+        <li><strong>Keep schemas simple</strong> – avoid unnecessary nesting.</li>
+        <li><strong>Test with the debug panel</strong> – verify that the AI's data matches your expectations.</li>
+        <li><strong>Use the universal library</strong> – it handles persistence, loading, and debugging for you.</li>
+        <li><strong>Name your template uniquely</strong> – avoid collisions with other active templates.</li>
+      </ul>
+
+      <hr>
+      <p style="text-align: center; color: #888;">fxAI – Custom Template Guide v1.4</p>
+    </div>
+  </body>
+</html>

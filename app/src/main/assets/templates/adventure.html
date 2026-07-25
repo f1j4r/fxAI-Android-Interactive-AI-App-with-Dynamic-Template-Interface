@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!--
+  "name": "Text Adventure",
+  "description": "Interactive story with choices, inventory items, and location names. Each scene can (optional) include an item that can be added to inventory according to user choice.",
+  "jsonSchema": {"title": "string", "scenes": [{"text": "string", "location": "string", "choices": ["string"]}], "inventory": ["string"]}
+  -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Text Adventure</title>
+    <!-- Universal CSS -->
+    <link rel="stylesheet" href="file:///android_asset/fxai.css">
+    <!-- Custom (template-specific) styles -->
+<style>
+        /* Override or extend as needed */
+        body {
+            /* Use dark theme variant */
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+        .fxai-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            color: #f0f0f0;
+        }
+        .fxai-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #f0f0f0;
+        }
+        .fxai-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        .fxai-choice {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #f0f0f0;
+        }
+        .fxai-choice:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .fxai-tag {
+            background: rgba(255,215,0,0.2);
+            border-color: rgba(255,215,0,0.3);
+        }
+        /* Override loading overlay to match dark theme */
+        #fxai-loading-overlay {
+            background: rgba(0,0,0,0.8);
+        }
+</style>
+  </head>
+  <body>
+
+    <div class="fxai-container">
+      <!-- Header -->
+      <div class="fxai-header">
+        <h1 id="adventureTitle">Text Adventure</h1>
+        <div class="subtitle" id="sceneLocation"></div>
+      </div>
+
+      <!-- Main content -->
+      <div id="adventureView">
+        <div class="fxai-card">
+          <div class="scene-text" id="sceneText">Loading…</div>
+          <br>
+          <div class="fxai-choices" id="choicesContainer"></div>
+
+          <!-- Custom input area -->
+          <div class="fxai-flex fxai-gap-8" style="margin-top:12px;">
+            <input type="text" id="customInput" class="fxai-input fxai-input-dark" placeholder="Type your action…" />
+            <button class="fxai-btn fxai-btn-primary" onclick="submitCustomChoice()">Go</button>
+          </div>
+
+          <!-- Inventory -->
+          <div class="fxai-tags" id="inventoryContainer"></div>
+        </div>
+        <div class="fxai-progress" id="statusText"></div>
+      </div>
+
+      <!-- Error view -->
+      <div id="errorView" class="fxai-error fxai-hidden"></div>
+    </div>
+
+    <!-- Load the universal FXAI library (must come after DOM elements) -->
+    <script src="file:///android_asset/fxai.js"></script>
+
+<script>
+// ─── Global state (used by getState) ──────────────────────────────
+var _adventureData = null;
+var _inventory = [];
+var _sceneIndex = 0;
+var _firstRenderDone = false;
+
+// ─── window.render() – called by the bridge ──────────────────────────
+window.render = function() {
+  try {
+    var rawData = window.templateData;
+    if (!rawData || !rawData.scenes) {
+      showError('Invalid adventure data: missing "scenes" array.');
+      return;
+    }
+
+    // Detect history load (has _state)
+    var isHistoryLoad = rawData._state !== undefined;
+
+    // Clean data via FXAI (removes _state)
+    var newData = FXAI.init(rawData);
+
+    // ── Merge or replace ──────────────────────────────────────────────
+    if (_adventureData && _adventureData.scenes && newData.scenes && newData.scenes.length === 1) {
+      // Append the single new scene
+      var merged = JSON.parse(JSON.stringify(_adventureData));
+      merged.scenes = merged.scenes.concat(newData.scenes);
+      if (newData.title) merged.title = newData.title;
+      _adventureData = FXAI.init(merged);
+    } else {
+      // Full replacement (initial load, regeneration, or full story update)
+      _adventureData = newData;
+    }
+
+    // ── Determine scene index ─────────────────────────────────────────
+    if (isHistoryLoad) {
+      // Restore saved state
+      var savedState = FXAI.getStateObj();
+      _inventory = savedState.inventory || [];
+      _sceneIndex = savedState.sceneIndex || 0;
+    } else if (!_firstRenderDone) {
+      // First ever load → start at scene 0
+      _sceneIndex = 0;
+      _firstRenderDone = true;
+      _inventory = [];
+    }
+
+    _inventory = _adventureData.inventory || [];
+    _sceneIndex = _adventureData.scenes.length > 1 ? _adventureData.scenes.length - 1 : 0;
+
+    // ── Update UI ──────────────────────────────────────────────────────
+    document.getElementById('adventureTitle').textContent = _adventureData.title || 'Adventure';
+    showScene();
+    document.getElementById('errorView').classList.add('fxai-hidden');
+
+    // ── Persist state ──────────────────────────────────────────────────
+    FXAI.persist();
+
+  } catch (e) {
+    showError('Render error: ' + e.message);
+  }
+};
+
+// ─── window.getState() – called by the bridge for history ──────────
+window.getState = function() {
+  return {
+    inventory: _inventory,
+    sceneIndex: _sceneIndex
+  };
+};
+
+// ─── UI Functions ─────────────────────────────────────────────────────
+function showScene() {
+  if (!_adventureData || !_adventureData.scenes || _adventureData.scenes.length === 0) {
+    document.getElementById('sceneText').textContent = 'No scenes to display.';
+    return;
+  }
+
+  var scene = _adventureData.scenes[_sceneIndex];
+  if (!scene) {
+    document.getElementById('sceneText').textContent = 'Scene not found (index=' + _sceneIndex + ')';
+    return;
+  }
+
+  document.getElementById('sceneText').textContent = scene.text;
+
+  var locEl = document.getElementById('sceneLocation');
+  if (scene.location && scene.location.trim()) {
+    locEl.textContent = scene.location;
+    locEl.style.display = 'block';
+  } else {
+    locEl.textContent = '';
+    locEl.style.display = 'none';
+  }
+
+  var container = document.getElementById('choicesContainer');
+  container.innerHTML = '';
+  if (scene.choices && scene.choices.length > 0) {
+    scene.choices.forEach(function(choice, idx) {
+                            var btn = document.createElement('button');
+                            btn.className = 'fxai-choice';
+                            btn.textContent = choice;
+                            btn.onclick = function() { makeChoice(idx); };
+                            container.appendChild(btn);
+                          });
+  } else {
+    var msg = document.createElement('div');
+    msg.textContent = '— The End —';
+    msg.style.textAlign = 'center';
+    msg.style.padding = '20px';
+    msg.style.fontStyle = 'italic';
+    container.appendChild(msg);
+  }
+
+  var invContainer = document.getElementById('inventoryContainer');
+  invContainer.innerHTML = '';
+  if (_inventory && _inventory.length > 0) {
+    _inventory.forEach(function(item) {
+                         var span = document.createElement('span');
+                         span.className = 'fxai-tag';
+                         span.textContent = item;
+                         invContainer.appendChild(span);
+                       });
+  } else {
+    var empty = document.createElement('span');
+    empty.className = 'fxai-tag';
+    empty.textContent = 'Empty';
+    empty.style.opacity = '0.5';
+    invContainer.appendChild(empty);
+  }
+
+  document.getElementById('statusText').textContent = 'Scene ' + (_sceneIndex + 1) + ' of ' + _adventureData.scenes.length;
+}
+
+// ─── Interaction Handlers ────────────────────────────────────────────
+
+function makeChoice(index) {
+  if (!_adventureData || !_adventureData.scenes) return;
+  var scene = _adventureData.scenes[_sceneIndex];
+  if (!scene || !scene.choices) return;
+  var choiceText = scene.choices[index];
+  if (choiceText) {
+    FXAI.generateNext(choiceText);
+  }
+}
+
+function submitCustomChoice() {
+  var input = document.getElementById('customInput');
+  var text = input.value.trim();
+  if (!text) {
+    alert('Please enter an action.');
+    return;
+  }
+  input.value = '';
+  FXAI.generateNext(text);
+}
+
+// ─── Error Handling ──────────────────────────────────────────────────
+
+function showError(msg) {
+  var el = document.getElementById('errorView');
+  el.textContent = msg;
+  el.classList.remove('fxai-hidden');
+  document.getElementById('adventureView').classList.add('fxai-hidden');
+}
+
+// ─── Initialisation ──────────────────────────────────────────────────
+
+// If window.templateData is already set (history load), render immediately.
+if (window.templateData) {
+  window.render();
+}
+</script>
+  </body>
+</html>

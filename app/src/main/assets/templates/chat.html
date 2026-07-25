@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    "name": "AI Chat",
+    "description": "General-purpose AI chat with HTML formatting support. Responses can contains HTML elements and will be rendered as HTML.",
+    "jsonSchema": {"messages": [{"role": "string", "content": "string"}]}
+-->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AI Chat</title>
+  <link rel="stylesheet" href="file:///android_asset/fxai.css">
+  <style>
+    /* ─── Base styles (Light theme) ────────────────────────────── */
+    body {
+      background: #f0f2f5;
+      padding: 4px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      height: 99vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+    }
+    
+    .fxai-container {
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      padding: 0;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    
+    .chat-header {
+      padding: 20px 24px;
+      background: #667eea;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    
+    .chat-header h1 {
+      font-size: 22px;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .chat-header .subtitle {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    
+    .chat-header .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    #clear-btn,
+    .theme-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1.4;
+    }
+    
+    #clear-btn:hover,
+    .theme-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .theme-btn {
+      font-size: 18px;
+      padding: 4px 10px;
+    }
+    
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #fafafa;
+      transition: background 0.3s;
+    }
+    
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      position: relative;
+      word-wrap: break-word;
+      line-height: 1.5;
+      transition: background 0.3s, color 0.3s;
+    }
+    
+    .message.user {
+      align-self: flex-end;
+      background: #e1f5fe;
+      border-bottom-right-radius: 4px;
+      color: #0b3d5c;
+      white-space: pre-wrap;
+    }
+    
+    .message.assistant {
+      align-self: flex-start;
+      background: #f0f0f0;
+      border-bottom-left-radius: 4px;
+      color: #1e1e1e;
+    }
+    
+    .message.assistant p {
+      margin: 0 0 8px;
+    }
+    
+    .message.assistant p:last-child {
+      margin: 0;
+    }
+    
+    .message.assistant ul,
+    .message.assistant ol {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+    
+    .message.assistant a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    
+    .message.assistant a:hover {
+      text-decoration: underline;
+    }
+    
+    .message.assistant code {
+      background: #e0e0e0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    
+    .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff6b6b;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      color: white;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: 0.2s;
+    }
+    
+    .delete-btn:hover {
+      transform: scale(1.1);
+      background: #e74c3c;
+    }
+    
+    .delete-btn:active {
+      transform: scale(0.9);
+    }
+    
+    .input-area {
+      padding: 16px 24px;
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 10px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    
+    .input-area input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      font-size: 16px;
+      outline: none;
+      transition: 0.2s;
+    }
+    
+    .input-area input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+    
+    .input-area button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 24px;
+      background: #667eea;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    
+    .input-area button:hover {
+      background: #5a6fd6;
+    }
+    
+    .input-area button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .empty-state {
+      text-align: center;
+      color: #888;
+      padding: 40px 20px;
+      font-size: 18px;
+      transition: color 0.3s;
+    }
+    
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .messages::-webkit-scrollbar-track {
+      background: #f0f0f0;
+    }
+    
+    .messages::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+    
+    /* ─── Dark theme overrides ────────────────────────────────── */
+    body.dark-theme {
+      background: #1a1a2e;
+    }
+    
+    body.dark-theme .fxai-container {
+      background: #2d2d44;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    body.dark-theme .chat-header {
+      background: #3b3b5c;
+    }
+    
+    body.dark-theme .messages {
+      background: #1e1e32;
+    }
+    
+    body.dark-theme .message.user {
+      background: #2b4b6e;
+      color: #e8f0fe;
+    }
+    
+    body.dark-theme .message.assistant {
+      background: #3d3d5c;
+      color: #f0f0f0;
+    }
+    
+    body.dark-theme .message.assistant a {
+      color: #8ab4f8;
+    }
+    
+    body.dark-theme .message.assistant code {
+      background: #2a2a44;
+    }
+    
+    body.dark-theme .input-area {
+      background: #2d2d44;
+      border-top-color: #444466;
+    }
+    
+    body.dark-theme .input-area input {
+      background: #3d3d5c;
+      border-color: #555577;
+      color: #f0f0f0;
+    }
+    
+    body.dark-theme .input-area input:focus {
+      border-color: #667eea;
+    }
+    
+    body.dark-theme .input-area button {
+      background: #667eea;
+    }
+    
+    body.dark-theme .empty-state {
+      color: #aaa;
+    }
+    
+    body.dark-theme .delete-btn {
+      background: #ff6b6b;
+    }
+    
+    body.dark-theme .messages::-webkit-scrollbar-track {
+      background: #2d2d44;
+    }
+    
+    body.dark-theme .messages::-webkit-scrollbar-thumb {
+      background: #555;
+    }
+  </style>
+</head>
+
+<body>
+  
+  <div class="fxai-container">
+    <div class="chat-header">
+      <div>
+        <h1>💬 AI Chat</h1>
+        <div class="subtitle">HTML‑enabled responses</div>
+      </div>
+      <div class="header-actions">
+        <button id="clear-btn" onclick="clearChat()">Clear Chat</button>
+        <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">🌓</button>
+      </div>
+    </div>
+    
+    <div class="messages" id="messagesContainer">
+      <div class="empty-state">No messages yet. Start chatting!</div>
+    </div>
+    
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Type your message…" autofocus />
+      <button id="sendBtn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+  
+  <!-- FXAI Library -->
+  <script src="file:///android_asset/fxai.js"></script>
+  
+  <script>
+    // ─── Internal state ──────────────────────────────────────────────
+    var _data = null;
+    var _lastUserIndex = -1;
+    var _state = { theme: 'dark' };
+    var _confirm = 0;
+    
+    // ─── Required: window.render() ──────────────────────────────────
+    window.render = function() {
+      try {
+        var rawData = window.templateData;
+        if (!rawData || !Array.isArray(rawData.messages)) {
+          rawData = { messages: [], _state: _state };
+          window.templateData = rawData;
+        }
+        
+        // Clean data – extracts _state from rawData if present
+        _data = FXAI.init(rawData);
+        if (!Array.isArray(_data.messages)) {
+          _data.messages = [];
+        }
+        
+        // Restore state: if saved state exists, use it; otherwise keep current _state
+        var savedState = FXAI.getStateObj();
+        if (Object.keys(savedState).length > 0) {
+          _state = savedState;
+        }
+        // If no saved state, _state remains unchanged (preserves theme)
+        
+        applyTheme(_state.theme);
+        renderMessages();
+        // Persist once – this will save the current _state along with data
+        FXAI.persist();
+      } catch (e) {
+        console.error('Render error:', e);
+        showError('Failed to render chat: ' + e.message);
+      }
+    };
+    
+    // ─── Required: window.getState() ─────────────────────────────────
+    window.getState = function() {
+      return _state;
+    };
+    
+    // ─── Theme ──────────────────────────────────────────────────────
+    function applyTheme(theme) {
+      document.body.classList.toggle('dark-theme', theme === 'dark');
+    }
+    
+    function toggleTheme() {
+      var newTheme = _state.theme === 'light' ? 'dark' : 'light';
+      _state.theme = newTheme;
+      applyTheme(newTheme);
+      // Persist immediately so theme is saved
+      FXAI.persist();
+    }
+    
+    // ─── Render UI ──────────────────────────────────────────────────
+    function renderMessages() {
+      var container = document.getElementById('messagesContainer');
+      container.innerHTML = '';
+      
+      var messages = _data.messages || [];
+      
+      if (messages.length === 0) {
+        container.innerHTML = '<div class="empty-state">No messages yet. Start chatting!</div>';
+        return;
+      }
+      
+      _lastUserIndex = -1;
+      for (var i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].role === 'user') {
+          _lastUserIndex = i;
+          break;
+        }
+      }
+      
+      messages.forEach(function(msg, idx) {
+        var div = document.createElement('div');
+        div.className = 'message ' + msg.role;
+        
+        if (msg.role === 'user') {
+          div.textContent = msg.content;
+          if (idx === _lastUserIndex) {
+            var delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.textContent = '✕';
+            delBtn.title = 'Delete this exchange';
+            delBtn.onclick = function(e) {
+              e.stopPropagation();
+              deleteLastExchange();
+            };
+            div.style.position = 'relative';
+            div.appendChild(delBtn);
+          }
+        } else {
+          div.innerHTML = formatAssistantContent(msg.content);
+        }
+        
+        container.appendChild(div);
+      });
+      
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function formatAssistantContent(text) {
+      if (!text) return '';
+      return text
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '')
+        .replace(/\bon\w+\s*=\s*[^\s>]+/gi, '');
+    }
+    
+    // ─── Send message ────────────────────────────────────────────────
+    function sendMessage() {
+      var input = document.getElementById('userInput');
+      var text = input.value.trim();
+      if (!text) return;
+      
+      _data.messages.push({ role: 'user', content: text });
+      input.value = '';
+      
+      // Include _state so it's preserved
+      window.templateData = { messages: _data.messages, _state: _state };
+      window.render();
+      
+      FXAI.generateNext(text, 'Thinking…');
+    }
+    
+    // ─── Delete last exchange ────────────────────────────────────────
+    function deleteLastExchange() {
+      if (_lastUserIndex < 0) return;
+      var messages = _data.messages;
+      messages.splice(_lastUserIndex, 1);
+      if (_lastUserIndex < messages.length && messages[_lastUserIndex].role === 'assistant') {
+        messages.splice(_lastUserIndex, 1);
+      }
+      _lastUserIndex = -1;
+      
+      window.templateData = { messages: messages, _state: _state };
+      window.render();
+    }
+    
+    // ─── Clear chat with toast & confirmation ───────────────────────
+    function clearChat() {
+      if (_data.messages.length === 0) {
+        FXAI.showToast('No messages to clear.');
+        return;
+      }
+      
+      var cb = document.getElementById('clear-btn');
+      
+      if (_confirm === 1) {
+        _confirm = 0; cb.innerHTML = "Clear chat";
+        _data.messages = [];
+        window.templateData = { messages: [], _state: _state };
+        window.render();
+        FXAI.showToast('Chat cleared.');
+        return;
+      }
+      
+      _confirm = 1; cb.innerHTML = "Confirm!!";
+      setTimeout(() => {
+        _confirm = 0; cb.innerHTML = "Clear chat";
+      }, 3000);
+    }
+    
+    // ─── Error handling ──────────────────────────────────────────────
+    function showError(msg) {
+      alert('Error: ' + msg);
+    }
+    
+    // ─── Enter key support ───────────────────────────────────────────
+    document.getElementById('userInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    
+    // ─── Initialisation ──────────────────────────────────────────────
+    if (window.templateData) {
+      window.render();
+    } else {
+      window.templateData = { messages: [], _state: _state };
+      window.render();
+    }
+  </script>
+</body>
+
+</html>

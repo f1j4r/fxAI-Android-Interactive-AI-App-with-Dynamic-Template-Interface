@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Template Name -->
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Template Name"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      android:layout_marginBottom="4dp" />
+
+    <EditText
+      android:id="@+id/editTemplateName"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="e.g. Math Quiz"
+      android:inputType="text"
+      android:maxLines="1"
+      android:layout_marginBottom="16dp" />
+
+    <!-- Description -->
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Description"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      android:layout_marginBottom="4dp" />
+
+    <EditText
+      android:id="@+id/editTemplateDesc"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="What this template does..."
+      android:inputType="textMultiLine"
+      android:maxLines="3"
+      android:layout_marginBottom="16dp" />
+
+    <!-- JSON Schema -->
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="JSON Schema"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      android:layout_marginBottom="4dp" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Tell the AI what JSON structure to output"
+      android:textSize="12sp"
+      android:textColor="#757575"
+      android:layout_marginBottom="4dp" />
+
+    <EditText
+      android:id="@+id/editJsonSchema"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint='{"field": "type"}'
+      android:inputType="textMultiLine"
+      android:maxLines="6"
+      android:minLines="3"
+      android:fontFamily="monospace"
+      android:textSize="13sp"
+      android:layout_marginBottom="16dp" />
+
+    <!-- HTML File -->
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="HTML Template File"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      android:layout_marginBottom="4dp" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Select an HTML file from your device"
+      android:textSize="12sp"
+      android:textColor="#757575"
+      android:layout_marginBottom="4dp" />
+
+    <Button
+      android:id="@+id/btnPickHtml"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="📁 Choose HTML File"
+      android:layout_marginBottom="8dp" />
+
+    <TextView
+      android:id="@+id/txtSelectedFile"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="No file selected"
+      android:textSize="13sp"
+      android:textColor="#F44336"
+      android:layout_marginBottom="8dp" />
+
+  </LinearLayout>
+
+</ScrollView>
+

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    "name": "Quiz",
+    "description": "Multiple choice quiz with scoring and explanations",
+    "jsonSchema": {\"topic\": \"string\", \"questions\": [{\"question\": \"string\", \"options\": [\"string\"], \"correct\": 0, \"explanation\": \"string (optional)\"}]}
+-->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Quiz</title>
+    <!-- Universal CSS -->
+    <link rel="stylesheet" href="file:///android_asset/fxai.css">
+    <!-- Custom styles (override universal styles) -->
+<style>
+    /* ─── Template-specific overrides ────────────────────────────── */
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+    }
+
+    /* Quiz-specific layout */
+    .question-box {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        margin-bottom: 20px;
+    }
+
+    .question-text {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        line-height: 1.4;
+    }
+
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .option-btn {
+        padding: 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        background: white;
+        font-size: 16px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .option-btn:hover { background: #f5f5f5; }
+    .option-btn.selected { border-color: #667eea; background: #e8eaff; }
+    .option-btn.correct { border-color: #4caf50; background: #e8f5e9; }
+    .option-btn.wrong { border-color: #f44336; background: #ffebee; }
+    .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+    .btn-next {
+        width: 100%;
+        padding: 16px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 16px;
+    }
+    .btn-next:hover { background: #5a6fd6; }
+    .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .progress {
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        margin-top: 16px;
+    }
+
+    .result {
+        text-align: center;
+        color: white;
+        padding: 40px 20px;
+    }
+    .result h2 { font-size: 32px; margin-bottom: 16px; }
+    .result .score { font-size: 48px; font-weight: bold; }
+    .result .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .result .action-buttons .btn {
+        flex: 0 1 auto;
+        min-width: 120px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: white;
+    }
+    .result .action-buttons .btn:hover { transform: translateY(-2px); }
+    .btn-retry { background: #4caf50; }
+    .btn-regenerate { background: #9b59b6; }
+    .btn-extend { background: #3498db; }
+    .btn-custom { background: #e67e22; }
+    .btn-generate { background: #1abc9c; }
+
+    .custom-input-area {
+        margin-top: 20px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .custom-input-area input {
+        flex: 2;
+        min-width: 200px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: none;
+        font-size: 16px;
+    }
+    .custom-input-area .btn {
+        flex: 0 1 auto;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 12px;
+        background: #1abc9c;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .custom-input-area .btn:hover { background: #16a085; }
+
+    .explanation-box {
+        background: #f0f4ff;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+        border-left: 4px solid #667eea;
+        font-size: 15px;
+        line-height: 1.4;
+        display: none;
+    }
+    .explanation-box.visible { display: block; }
+
+    /* Override loading overlay to match theme */
+    #fxai-loading-overlay {
+        background: rgba(0,0,0,0.7);
+    }
+</style>
+  </head>
+  <body>
+
+    <div class="fxai-container">
+      <div class="fxai-header">
+        <h1 id="quizTitle">Quiz</h1>
+        <div class="subtitle" id="quizTopic">Loading…</div>
+      </div>
+
+      <div id="quizView">
+        <div class="question-box">
+          <div class="question-text" id="questionText">Loading…</div>
+          <div class="options" id="optionsContainer"></div>
+          <div class="explanation-box" id="explanationBox"></div>
+          <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+        </div>
+        <div class="progress" id="progressText">Question 1 of 10</div>
+      </div>
+
+      <div id="resultView" class="fxai-hidden result">
+        <h2>🎉 Quiz Complete!</h2>
+        <div class="score" id="finalScore">0/0</div>
+        <div style="margin: 16px 0; font-size: 18px;" id="finalMessage"></div>
+        <div class="action-buttons">
+          <button class="btn btn-retry" onclick="restartQuiz()">Retry</button>
+          <button class="btn btn-regenerate" onclick="regenerateQuiz()">🔄 Regenerate</button>
+          <button class="btn btn-extend" onclick="extendQuiz()">➕ Extend</button>
+        </div>
+        <div class="custom-input-area">
+          <input type="text" id="customPromptInput" placeholder="Custom prompt (e.g., 'Make it harder')" />
+          <button class="btn btn-generate" onclick="customGenerate()">Generate</button>
+        </div>
+      </div>
+
+      <div id="errorView" class="fxai-error fxai-hidden"></div>
+    </div>
+
+    <!-- FXAI library -->
+    <script src="file:///android_asset/fxai.js"></script>
+
+<script>
+// ─── Global state ──────────────────────────────────────────────
+var _quizData = null;          // clean data (without _state)
+var _currentState = {
+  currentIndex: 0,
+  answers: [],
+  score: 0,
+  answered: false
+};
+var _initialTopic = '';
+
+// ─── window.render() – called by bridge ────────────────────────
+window.render = function() {
+  try {
+    var rawData = window.templateData;
+    if (!rawData || !rawData.questions) {
+      showError('Invalid quiz data: missing "questions" array.');
+      return;
+    }
+
+    // Extract clean data and restore _state
+    _quizData = FXAI.init(rawData);
+    var savedState = FXAI.getStateObj();
+
+    if (Object.keys(savedState).length > 0) {
+      _currentState = savedState;
+    } else {
+      // New session – initialise state
+      _currentState = {
+        currentIndex: 0,
+        answers: new Array(_quizData.questions.length).fill(null),
+        score: 0,
+        answered: false
+      };
+    }
+
+    // Ensure answers array matches length
+    if (_currentState.answers.length !== _quizData.questions.length) {
+      _currentState.answers = new Array(_quizData.questions.length).fill(null);
+      _currentState.score = 0;
+    }
+
+    // Store initial topic (if not yet set)
+    if (!_initialTopic && _quizData.topic) {
+      _initialTopic = _quizData.topic;
+    }
+
+    // Update UI
+    document.getElementById('quizTitle').textContent = 'Quiz';
+    document.getElementById('quizTopic').textContent = _quizData.topic || 'General Knowledge';
+
+    showQuestion();
+    updateProgress();
+    document.getElementById('resultView').classList.add('fxai-hidden');
+    document.getElementById('quizView').classList.remove('fxai-hidden');
+    document.getElementById('errorView').classList.add('fxai-hidden');
+    document.getElementById('explanationBox').classList.remove('visible');
+
+    // Persist state (so history saves correctly)
+    FXAI.persist();
+
+  } catch (e) {
+    showError('Render error: ' + e.message);
+  }
+};
+
+// ─── window.getState() – for history saving ────────────────────
+window.getState = function() {
+  return {
+    currentIndex: _currentState.currentIndex,
+    answers: _currentState.answers,
+    score: _currentState.score,
+    answered: _currentState.answered
+  };
+};
+
+// ─── UI Functions ──────────────────────────────────────────────
+function showQuestion() {
+  var q = _quizData.questions[_currentState.currentIndex];
+  document.getElementById('questionText').textContent = q.question;
+  var container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  _currentState.answered = false;
+  document.getElementById('explanationBox').classList.remove('visible');
+  document.getElementById('nextBtn').disabled = true;
+
+  q.options.forEach(function(opt, idx) {
+                      var btn = document.createElement('button');
+                      btn.className = 'option-btn';
+                      btn.textContent = String.fromCharCode(65 + idx) + '. ' + opt;
+                      btn.onclick = function() { selectOption(idx); };
+                      container.appendChild(btn);
+                    });
+
+  // Restore previous answer if any
+  var prevAnswer = _currentState.answers[_currentState.currentIndex];
+  if (prevAnswer !== null && prevAnswer !== undefined) {
+    var buttons = container.querySelectorAll('.option-btn');
+    buttons.forEach(function(btn, idx) {
+                      if (idx === prevAnswer) {
+                        btn.classList.add('selected');
+                      }
+                      btn.classList.add('disabled');
+                    });
+    showExplanation(q);
+    _currentState.answered = true;
+    document.getElementById('nextBtn').disabled = false;
+  }
+}
+
+function selectOption(index) {
+  if (_currentState.answered) return;
+  var q = _quizData.questions[_currentState.currentIndex];
+  var buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(function(btn, idx) {
+                    btn.classList.add('disabled');
+                    if (idx === index) {
+                      btn.classList.add('selected');
+                    }
+                  });
+
+  var isCorrect = (index === q.correct);
+  _currentState.answers[_currentState.currentIndex] = index;
+  if (isCorrect) _currentState.score++;
+  _currentState.answered = true;
+
+  buttons.forEach(function(btn, idx) {
+                    if (idx === q.correct) btn.classList.add('correct');
+                    if (idx === index && !isCorrect) btn.classList.add('wrong');
+                  });
+
+  showExplanation(q);
+
+  document.getElementById('nextBtn').disabled = false;
+  updateProgress();
+  // Persist state after each answer
+  FXAI.persist();
+}
+
+function showExplanation(q) {
+  var box = document.getElementById('explanationBox');
+  if (q.explanation) {
+    box.textContent = '💡 ' + q.explanation;
+    box.classList.add('visible');
+  } else {
+    box.textContent = 'ℹ️ No explanation provided for this question.';
+    box.classList.add('visible');
+  }
+}
+
+function nextQuestion() {
+  if (_currentState.currentIndex < _quizData.questions.length - 1) {
+    _currentState.currentIndex++;
+    showQuestion();
+    updateProgress();
+  } else {
+    showResult();
+  }
+}
+
+function updateProgress() {
+  var total = _quizData.questions.length;
+  document.getElementById('progressText').textContent =
+    'Question ' + (_currentState.currentIndex + 1) + ' of ' + total +
+    ' | Score: ' + _currentState.score;
+}
+
+function showResult() {
+  document.getElementById('quizView').classList.add('fxai-hidden');
+  document.getElementById('resultView').classList.remove('fxai-hidden');
+  var total = _quizData.questions.length;
+  document.getElementById('finalScore').textContent = _currentState.score + '/' + total;
+  var pct = Math.round((_currentState.score / total) * 100);
+  var msg = pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good job!' : 'Keep practicing!';
+  document.getElementById('finalMessage').textContent = msg + ' (' + pct + '%)';
+
+  // Save progress via FXAI helper (or bridge directly)
+  if (typeof AndroidBridge !== 'undefined') {
+    FXAI.saveProgress(
+      _quizData.topic || 'Quiz',
+      _currentState.score,
+      'Score: ' + _currentState.score + '/' + total + ' (' + pct + '%)'
+    );
+  }
+}
+
+function restartQuiz() {
+  _currentState.currentIndex = 0;
+  _currentState.answers = new Array(_quizData.questions.length).fill(null);
+  _currentState.score = 0;
+  _currentState.answered = false;
+  document.getElementById('resultView').classList.add('fxai-hidden');
+  document.getElementById('quizView').classList.remove('fxai-hidden');
+  showQuestion();
+  updateProgress();
+  FXAI.persist();
+}
+
+function showError(msg) {
+  var el = document.getElementById('errorView');
+  el.textContent = msg;
+  el.classList.remove('fxai-hidden');
+  document.getElementById('quizView').classList.add('fxai-hidden');
+  document.getElementById('resultView').classList.add('fxai-hidden');
+}
+
+// ─── AI Actions (using FXAI.generateNext) ──────────────────────
+
+function regenerateQuiz() {
+  if (typeof AndroidBridge === 'undefined') {
+    showError('Bridge not available.');
+    return;
+  }
+  var topic = _initialTopic || _quizData.topic || 'general';
+  FXAI.generateNext('Regenerate a quiz on the topic: ' + topic);
+}
+
+function extendQuiz() {
+  if (typeof AndroidBridge === 'undefined') {
+    showError('Bridge not available.');
+    return;
+  }
+  var topic = _initialTopic || _quizData.topic || 'general';
+  FXAI.generateNext('Add 5 more questions to the quiz on topic: ' + topic);
+}
+
+function customGenerate() {
+  var input = document.getElementById('customPromptInput');
+  var prompt = input.value.trim();
+  if (!prompt) {
+    alert('Please enter a custom prompt.');
+    return;
+  }
+  if (typeof AndroidBridge === 'undefined') {
+    showError('Bridge not available.');
+    return;
+  }
+  FXAI.generateNext(prompt);
+  input.value = '';
+}
+
+// ─── Initialisation ──────────────────────────────────────────────
+if (window.templateData) {
+  window.render();
+}
+</script>
+  </body>
+</html>

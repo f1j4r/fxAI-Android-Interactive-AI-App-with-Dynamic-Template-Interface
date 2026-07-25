@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<Toolbar
+		android:id="@+id/toolbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/toolbar_bg"
+		android:title="@string/app_name"
+		android:titleTextColor="@color/toolbar_text"/>
+
+	<WebView
+		android:id="@+id/webView"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"/>
+
+	<LinearLayout
+		android:id="@+id/inputToolbar"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:background="#444444">
+
+		<TextView
+			android:id="@+id/hideInput"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="Show/Hide"
+			android:padding="4dp"
+			android:layout_marginEnd="4dp"
+			android:background="#222222"
+			android:textStyle="bold"
+			android:textColor="#FFFFFF"/>
+
+		<TextView
+			android:id="@+id/chatMode"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:padding="4dp"
+			android:layout_marginEnd="4dp"
+			android:text="Chat Mode"
+			android:background="#222222"
+			android:textStyle="bold"
+			android:textColor="#FFFFFF"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:id="@+id/inputLayout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:background="#333333"
+		android:gravity="center">
+
+		<EditText
+			android:id="@+id/chatInput"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:hint="Ask AI to create something..."
+			android:inputType="textMultiLine"
+			android:maxLines="3"
+			android:background="@android:drawable/edit_text"
+			android:padding="8dp"/>
+
+		<ImageButton
+			android:id="@+id/sendButton"
+			android:layout_width="72dp"
+			android:layout_height="64dp"
+			android:layout_marginStart="4dp"
+			android:src="@android:drawable/ic_menu_send"
+			android:padding="8dp"
+			android:scaleType="centerInside"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

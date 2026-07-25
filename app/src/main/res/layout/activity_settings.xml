@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<Toolbar
+		android:id="@+id/settingsToolbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/toolbar_bg"
+		android:titleTextColor="@color/toolbar_text"/>
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:padding="16dp">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="AI Provider"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:layout_marginBottom="8dp"
+				android:gravity="center"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="2dp"
+				android:background="#999999"
+				android:layout_marginBottom="24dp"/>
+
+			<Spinner
+				android:id="@+id/spinnerProvider"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="4dp"/>
+
+			<TextView
+				android:id="@+id/txtProviderInfo"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textSize="12sp"
+				android:textColor="#757575"
+				android:layout_marginBottom="16dp"/>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="API Key"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:layout_marginBottom="8dp"/>
+
+			<EditText
+				android:id="@+id/editApiKey"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Enter your API key"
+				android:inputType="textPassword"
+				android:maxLines="1"
+				android:layout_marginBottom="4dp"/>
+
+			<TextView
+				android:id="@+id/txtApiKeyHint"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textSize="12sp"
+				android:textColor="#757575"
+				android:autoLink="web"
+				android:layout_marginBottom="16dp"/>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Model"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:layout_marginBottom="8dp"/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:gravity="center_vertical"
+				android:layout_marginBottom="4dp">
+
+				<TextView
+					android:id="@+id/txtModelStatus"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="Select provider to load models"
+					android:textSize="13sp"
+					android:textColor="#757575"/>
+
+				<ProgressBar
+					android:id="@+id/progressModels"
+					android:layout_width="24dp"
+					android:layout_height="24dp"
+					android:visibility="gone"/>
+
+			</LinearLayout>
+
+			<Spinner
+				android:id="@+id/spinnerModel"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="16dp"/>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="API Endpoint URL"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:layout_marginBottom="8dp"/>
+
+			<EditText
+				android:id="@+id/editCustomUrl"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="API endpoint URL"
+				android:inputType="textUri"
+				android:maxLines="1"
+				android:layout_marginBottom="4dp"/>
+
+			<TextView
+				android:id="@+id/txtUrlHint"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textSize="12sp"
+				android:textColor="#757575"
+				android:layout_marginBottom="24dp"/>
+
+			<Button
+				android:id="@+id/btnTestConnection"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Test Connection"
+				android:backgroundTint="#2196F3"/>
+
+			<Button
+				android:id="@+id/btnSave"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Save Settings"
+				android:layout_marginBottom="8dp"/>
+
+			<TextView
+				android:id="@+id/txtStatus"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text=""
+				android:textSize="14sp"
+				android:gravity="center"
+				android:textColor="#4CAF50"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="2dp"
+				android:background="#999999"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Manage Templates"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:gravity="center"
+				android:layout_marginTop="16dp"
+				android:layout_marginBottom="16dp"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="2dp"
+				android:background="#999999"
+				android:layout_marginBottom="24dp"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Toggle templates on/off. Only active templates are available to the AI."
+				android:textSize="12sp"
+				android:textColor="#757575"
+				android:layout_marginBottom="12dp"/>
+
+			<ListView
+				android:id="@+id/listTemplates"
+				android:layout_width="match_parent"
+				android:layout_height="300dp"
+				android:nestedScrollingEnabled="true"
+				android:divider="#E0E0E0"
+				android:dividerHeight="1dp"
+				android:layout_marginBottom="12dp"/>
+
+			<Button
+				android:id="@+id/btnAddTemplate"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="＋ Add New Template"/>
+
+			<Button
+				android:id="@+id/btnRestoreDefaults"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="♻️ Restore Built‑in Templates"
+				android:textColor="#1976D2"
+				android:layout_marginBottom="8dp"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="2dp"
+				android:background="#999999"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Memory / Personalization"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:layout_marginBottom="16dp"
+				android:gravity="center"
+				android:layout_marginTop="16dp"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="2dp"
+				android:background="#999999"
+				android:layout_marginBottom="24dp"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Your progress is saved and used to personalize future experiences."
+				android:textSize="12sp"
+				android:textColor="#757575"
+				android:layout_marginBottom="12dp"/>
+
+			<TextView
+				android:id="@+id/txtMemoryStats"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="No memory entries yet"
+				android:textSize="13sp"
+				android:textColor="#424242"
+				android:background="#F5F5F5"
+				android:padding="12dp"
+				android:layout_marginBottom="12dp"/>
+
+			<ListView
+				android:id="@+id/listMemory"
+				android:layout_width="match_parent"
+				android:layout_height="300dp"
+				android:nestedScrollingEnabled="true"
+				android:divider="#E0E0E0"
+				android:dividerHeight="1dp"
+				android:layout_marginBottom="12dp"/>
+
+			<Button
+				android:id="@+id/btnClearMemory"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="🗑️ Clear All Memory"
+				android:layout_marginBottom="16dp"/>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+</LinearLayout>
+
